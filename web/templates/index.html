@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Banking System - Dashboard{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Statistics Cards -->
+    <div class="col-12 mb-4">
+        <div class="row">
+            <div class="col-xl-3 col-md-6 mb-4" style="animation: fadeInUp 0.4s;">
+                <div class="card border-left-primary shadow h-100 py-2 hover-shadow">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Accounts</div>
+                                <div class="h5 mb-0 font-weight-bold">{{ total_accounts|default(0) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-users fa-2x text-primary opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4" style="animation: fadeInUp 0.5s;">
+                <div class="card border-left-success shadow h-100 py-2 hover-shadow">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Total Transactions</div>
+                                <div class="h5 mb-0 font-weight-bold">{{ total_transactions|default(0) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-exchange-alt fa-2x text-success opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4" style="animation: fadeInUp 0.6s;">
+                <div class="card border-left-info shadow h-100 py-2 hover-shadow">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Active Loans</div>
+                                <div class="h5 mb-0 font-weight-bold">{{ active_loans|default(0) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-money-bill-wave fa-2x text-info opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4" style="animation: fadeInUp 0.7s;">
+                <div class="card border-left-warning shadow h-100 py-2 hover-shadow">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Open Bugs</div>
+                                <div class="h5 mb-0 font-weight-bold">{{ open_bugs|default(0) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-bug fa-2x text-warning opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Features -->
+    <div class="col-lg-8" style="animation: fadeIn 0.8s;">
+        <div class="card shadow mb-4 glass">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-th-large me-2"></i>Banking Features
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 blur-card">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-users text-primary me-2"></i>Account Management</h5>
+                                <p class="card-text text-gray">Create, view, update, and delete bank accounts with different types.</p>
+                                <div class="mt-3">
+                                    <a href="{{ url_for('accounts') }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-users me-1"></i> Manage Accounts
+                                    </a>
+                                    <a href="{{ url_for('new_account') }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-user-plus me-1"></i> New Account
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 blur-card">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-exchange-alt text-success me-2"></i>Transactions</h5>
+                                <p class="card-text text-gray">Perform deposits, withdrawals, and transfers between accounts.</p>
+                                <div class="btn-group mt-3">
+                                    <a href="{{ url_for('deposit') }}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-arrow-circle-down me-1"></i> Deposit
+                                    </a>
+                                    <a href="{{ url_for('withdraw') }}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-arrow-circle-up me-1"></i> Withdraw
+                                    </a>
+                                    <a href="{{ url_for('transfer') }}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-sync-alt me-1"></i> Transfer
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 blur-card">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-money-bill-wave text-info me-2"></i>Loans</h5>
+                                <p class="card-text text-gray">Apply for loans, approve/reject applications, and make payments.</p>
+                                <div class="mt-3">
+                                    <a href="{{ url_for('loans') }}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-list-alt me-1"></i> View Loans
+                                    </a>
+                                    <a href="{{ url_for('apply_for_loan') }}" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-file-signature me-1"></i> Apply for Loan
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 blur-card">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-bug text-warning me-2"></i>Testing Tools</h5>
+                                <p class="card-text text-gray">Tools for reporting bugs and generating test reports.</p>
+                                <div class="btn-group mt-3">
+                                    <a href="{{ url_for('report_bug') }}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-exclamation-triangle me-1"></i> Report Bug
+                                    </a>
+                                    <a href="{{ url_for('bugs') }}" class="btn btn-sm btn-outline-warning">
+                                        <i class="fas fa-clipboard-list me-1"></i> View Bugs
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Information -->
+    <div class="col-lg-4" style="animation: fadeIn 0.9s;">
+        <div class="card shadow mb-4 glass">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-info-circle me-2"></i>System Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <p>This is a demo banking system application built for testing and learning purposes.</p>
+                <div class="mb-3">
+                    <h6 class="font-weight-bold text-primary"><i class="fas fa-check-circle me-2"></i>Features:</h6>
+                    <ul class="mb-0 ps-3 text-gray">
+                        <li>Account management</li>
+                        <li>Transaction processing</li>
+                        <li>Loan management</li>
+                        <li>Bug tracking</li>
+                    </ul>
+                </div>
+                <div class="mb-3">
+                    <h6 class="font-weight-bold text-primary"><i class="fas fa-code me-2"></i>Technology Stack:</h6>
+                    <ul class="mb-0 ps-3 text-gray">
+                        <li>Python with Flask</li>
+                        <li>SQLite database</li>
+                        <li>Bootstrap UI</li>
+                        <li>JavaScript</li>
+                    </ul>
+                </div>
+                <a href="{{ url_for('generate_report') }}" class="btn btn-primary mt-3">
+                    <i class="fas fa-chart-bar me-1"></i> Generate System Report
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Banking System - Transfer Funds{% endblock %}
+
+{% block page_title %}Transfer Funds{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 col-xl-6 mx-auto" style="animation: fadeIn 0.6s;">
+        <div class="card shadow mb-4 glass">
+            <div class="card-header py-3" style="background: linear-gradient(135deg, var(--info) 0%, #3aa1cc 100%);">
+                <h6 class="m-0 font-weight-bold text-white">
+                    <i class="fas fa-exchange-alt me-2"></i>Transfer Funds
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('transfer') }}" style="animation: fadeInUp 0.7s;">
+                    <div class="mb-4">
+                        <label for="from_account_id" class="form-label text-primary">
+                            <i class="fas fa-arrow-circle-right me-1"></i> From Account
+                        </label>
+                        <select class="form-select form-select-lg mb-3" id="from_account_id" name="from_account_id" required>
+                            <option value="">Choose source account</option>
+                            {% for account in accounts %}
+                                <option value="{{ account.account_id }}" {% if request.args.get('from_account_id')|int == account.account_id %}selected{% endif %} data-balance="{{ account.balance }}">
+                                    {{ account.account_number }} - {{ account.owner_name }} ({{ account.account_type }}) - Balance: ${{ "%.2f"|format(account.balance) }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="text-center my-3" style="animation: fadeIn 0.8s;">
+                        <i class="fas fa-arrow-down fa-2x text-info"></i>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="to_account_id" class="form-label text-primary">
+                            <i class="fas fa-arrow-circle-left me-1"></i> To Account
+                        </label>
+                        <select class="form-select form-select-lg mb-3" id="to_account_id" name="to_account_id" required>
+                            <option value="">Choose destination account</option>
+                            {% for account in accounts %}
+                                <option value="{{ account.account_id }}" {% if request.args.get('to_account_id')|int == account.account_id %}selected{% endif %}>
+                                    {{ account.account_number }} - {{ account.owner_name }} ({{ account.account_type }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div id="same-account-warning" class="form-text text-danger mt-2" style="display: none;">
+                            <i class="fas fa-exclamation-triangle me-1"></i> Source and destination accounts cannot be the same
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="amount" class="form-label text-primary">
+                            <i class="fas fa-dollar-sign me-1"></i> Transfer Amount
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                            <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="form-text mt-2" id="balance-warning"></div>
+                        <small class="text-gray mt-2">Enter the amount you wish to transfer between accounts.</small>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="description" class="form-label text-primary">
+                            <i class="fas fa-pen me-1"></i> Description (Optional)
+                        </label>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Add notes about this transfer..."></textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{{ url_for('accounts') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-info btn-lg" id="transfer-button">
+                            <i class="fas fa-paper-plane me-1"></i> Transfer Funds
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Quick Information Card -->
+        <div class="card shadow mb-4 blur-card" style="animation: fadeInUp 0.8s;">
+            <div class="card-header py-3 bg-primary">
+                <h6 class="m-0 font-weight-bold text-white">
+                    <i class="fas fa-info-circle me-2"></i>Transfer Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li class="mb-2">Transfers between accounts are processed immediately.</li>
+                    <li class="mb-2">You cannot transfer more than your available balance.</li>
+                    <li class="mb-2">Both accounts will show this transaction in their history.</li>
+                    <li>For transfers over $10,000, additional verification may be required.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Enhanced client-side validation for transfer
+    document.addEventListener('DOMContentLoaded', function() {
+        const fromAccountSelect = document.getElementById('from_account_id');
+        const toAccountSelect = document.getElementById('to_account_id');
+        const amountInput = document.getElementById('amount');
+        const balanceWarning = document.getElementById('balance-warning');
+        const sameAccountWarning = document.getElementById('same-account-warning');
+        const transferButton = document.getElementById('transfer-button');
+        
+        function validateTransfer() {
+            let isValid = true;
+            
+            // Check if accounts are selected
+            if (!fromAccountSelect.value || !toAccountSelect.value) return;
+            
+            // Check if same account
+            if (fromAccountSelect.value === toAccountSelect.value) {
+                sameAccountWarning.style.display = 'block';
+                isValid = false;
+            } else {
+                sameAccountWarning.style.display = 'none';
+            }
+            
+            // Check if amount exceeds balance
+            if (fromAccountSelect.value) {
+                const selectedOption = fromAccountSelect.options[fromAccountSelect.selectedIndex];
+                const accountBalance = parseFloat(selectedOption.getAttribute('data-balance'));
+                const amount = parseFloat(amountInput.value) || 0;
+                
+                if (amount > accountBalance) {
+                    balanceWarning.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> Warning: Amount exceeds available balance';
+                    balanceWarning.className = 'form-text text-danger';
+                    isValid = false;
+                } else if (amount > accountBalance * 0.75) {
+                    balanceWarning.innerHTML = '<i class="fas fa-info-circle me-1"></i> Note: You are transferring more than 75% of your balance';
+                    balanceWarning.className = 'form-text text-warning';
+                } else {
+                    balanceWarning.textContent = '';
+                }
+            }
+            
+            transferButton.disabled = !isValid;
+        }
+        
+        fromAccountSelect.addEventListener('change', validateTransfer);
+        toAccountSelect.addEventListener('change', validateTransfer);
+        amountInput.addEventListener('input', validateTransfer);
+    });
+</script>
+{% endblock %}

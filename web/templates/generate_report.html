@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Banking System - Generate Reports{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h3 class="card-title mb-0">Generate System Reports</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('generate_report') }}">
+                    <div class="mb-3">
+                        <label for="report_type" class="form-label">Report Type</label>
+                        <select class="form-select" id="report_type" name="report_type" required>
+                            <option value="">Select report type</option>
+                            <option value="bug_report">Bug Report</option>
+                        </select>
+                    </div>
+                    
+                    <div id="bug_report_options" class="mb-3 d-none">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Bug Report Options</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="include_closed" name="include_closed">
+                                    <label class="form-check-label" for="include_closed">
+                                        Include closed bugs
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Generate Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const reportTypeSelect = document.getElementById('report_type');
+        const bugReportOptions = document.getElementById('bug_report_options');
+        
+        reportTypeSelect.addEventListener('change', function() {
+            if (this.value === 'bug_report') {
+                bugReportOptions.classList.remove('d-none');
+            } else {
+                bugReportOptions.classList.add('d-none');
+            }
+        });
+    });
+</script>
+{% endblock %}

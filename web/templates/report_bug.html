@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Banking System - Report Bug{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h3 class="card-title mb-0">Report a Bug</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('report_bug') }}">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Bug Title</label>
+                        <input type="text" class="form-control" id="title" name="title" placeholder="Brief description of the issue" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Detailed Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" placeholder="Provide a detailed description of the bug..." required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="severity" class="form-label">Severity</label>
+                        <select class="form-select" id="severity" name="severity" required>
+                            <option value="">Select severity level</option>
+                            <option value="low">Low - Minor issue, no impact on functionality</option>
+                            <option value="medium" selected>Medium - Functionality impacted but workaround exists</option>
+                            <option value="high">High - Major functionality broken</option>
+                            <option value="critical">Critical - System crash or data loss</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="module" class="form-label">Module</label>
+                        <select class="form-select" id="module" name="module">
+                            <option value="">Select affected module</option>
+                            <option value="account">Account Management</option>
+                            <option value="transaction">Transactions</option>
+                            <option value="loan">Loans</option>
+                            <option value="database">Database</option>
+                            <option value="ui">User Interface</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="steps_to_reproduce" class="form-label">Steps to Reproduce</label>
+                        <textarea class="form-control" id="steps_to_reproduce" name="steps_to_reproduce" rows="3" placeholder="List the steps to reproduce this bug..."></textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-warning">Submit Bug Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

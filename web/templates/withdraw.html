@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Banking System - Make Withdrawal{% endblock %}
+
+{% block page_title %}Make a Withdrawal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 col-xl-6 mx-auto" style="animation: fadeIn 0.6s;">
+        <div class="card shadow mb-4 glass">
+            <div class="card-header py-3" style="background: linear-gradient(135deg, var(--danger) 0%, #c92b3d 100%);">
+                <h6 class="m-0 font-weight-bold text-white">
+                    <i class="fas fa-arrow-circle-up me-2"></i>Withdraw Funds
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('withdraw') }}" style="animation: fadeInUp 0.7s;">
+                    <div class="mb-4">
+                        <label for="account_id" class="form-label text-primary">
+                            <i class="fas fa-university me-1"></i> Select Account
+                        </label>
+                        <select class="form-select form-select-lg mb-3" id="account_id" name="account_id" required>
+                            <option value="">Choose an account</option>
+                            {% for account in accounts %}
+                                <option value="{{ account.account_id }}" {% if request.args.get('account_id')|int == account.account_id %}selected{% endif %} data-balance="{{ account.balance }}">
+                                    {{ account.account_number }} - {{ account.owner_name }} ({{ account.account_type }}) - Balance: ${{ "%.2f"|format(account.balance) }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="amount" class="form-label text-primary">
+                            <i class="fas fa-dollar-sign me-1"></i> Withdrawal Amount
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                            <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="form-text mt-2" id="balance-warning"></div>
+                        <small class="text-gray mt-2">Enter the amount you wish to withdraw from this account.</small>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="description" class="form-label text-primary">
+                            <i class="fas fa-pen me-1"></i> Description (Optional)
+                        </label>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Add notes about this withdrawal..."></textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{{ url_for('accounts') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-danger btn-lg" id="withdraw-button">
+                            <i class="fas fa-check me-1"></i> Make Withdrawal
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Quick Information Card -->
+        <div class="card shadow mb-4 blur-card" style="animation: fadeInUp 0.8s;">
+            <div class="card-header py-3 bg-primary">
+                <h6 class="m-0 font-weight-bold text-white">
+                    <i class="fas fa-info-circle me-2"></i>Withdrawal Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li class="mb-2">Withdrawals are processed immediately and reflected in your account balance.</li>
+                    <li class="mb-2">You cannot withdraw more than your available balance.</li>
+                    <li>For withdrawals over $5,000, additional verification may be required.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Client-side validation for withdrawal amount with enhanced UX
+    document.addEventListener('DOMContentLoaded', function() {
+        const accountSelect = document.getElementById('account_id');
+        const amountInput = document.getElementById('amount');
+        const balanceWarning = document.getElementById('balance-warning');
+        const withdrawButton = document.getElementById('withdraw-button');
+        
+        function validateAmount() {
+            if (!accountSelect.value) return;
+            
+            const selectedOption = accountSelect.options[accountSelect.selectedIndex];
+            const accountBalance = parseFloat(selectedOption.getAttribute('data-balance'));
+            const amount = parseFloat(amountInput.value);
+            
+            if (isNaN(amount)) {
+                balanceWarning.textContent = '';
+                withdrawButton.disabled = false;
+                return;
+            }
+            
+            if (amount > accountBalance) {
+                balanceWarning.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> Warning: Amount exceeds available balance';
+                balanceWarning.className = 'form-text text-danger';
+                withdrawButton.disabled = true;
+            } else if (amount > accountBalance * 0.75) {
+                balanceWarning.innerHTML = '<i class="fas fa-info-circle me-1"></i> Note: You are withdrawing more than 75% of your balance';
+                balanceWarning.className = 'form-text text-warning';
+                withdrawButton.disabled = false;
+            } else {
+                balanceWarning.textContent = '';
+                withdrawButton.disabled = false;
+            }
+        }
+        
+        accountSelect.addEventListener('change', validateAmount);
+        amountInput.addEventListener('input', validateAmount);
+    });
+</script>
+{% endblock %}
