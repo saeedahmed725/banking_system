@@ -158,7 +158,7 @@ class TransactionManager:
         valid_types = ["deposit", "withdrawal", "transfer_in", "transfer_out", "loan_disbursement", "loan_payment"]
         
         if transaction_type not in valid_types:
-            raise ValueError(f"Invalid transaction type. Must be one of: {", ".join(valid_types)}")
+            raise ValueError(f"Invalid transaction type. Must be one of: {', '.join(valid_types)}")
         
         timestamp = self.db.get_current_timestamp()
         

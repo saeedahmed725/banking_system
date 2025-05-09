@@ -409,3 +409,10 @@ if __name__ == '__main__':
     
     # Run the app
     app.run(debug=True)
+
+# Initialize database on server startup for Vercel
+db = account_manager.db
+db.initialize_database()
+
+# For Vercel serverless deployment
+# app is already defined above and will be used by the WSGI server
