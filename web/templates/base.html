@@ -687,101 +687,170 @@
         }
     </style>
 </head>
-<body>
-    <!-- Sidebar -->
+<body>    <!-- Sidebar -->
     <nav class="sidebar">
         <div class="sidebar-header">
             <h3>Banking System</h3>
+            {% if session.username %}
+                <small class="text-muted">{{ session.username }} ({{ session.user_type|title }})</small>
+            {% endif %}
         </div>
 
         <ul class="list-unstyled components">
-            <li class="{% if request.path == url_for('index') %}active{% endif %}">
-                <a href="{{ url_for('index') }}" class="sidebar-link">
-                    <i class="fas fa-home"></i> Dashboard
-                </a>
-            </li>
+            {% if session.user_type == 'admin' %}
+                <!-- Admin Navigation -->
+                <li class="{% if request.path == url_for('index') %}active{% endif %}">
+                    <a href="{{ url_for('index') }}" class="sidebar-link">
+                        <i class="fas fa-home"></i> Admin Dashboard
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="#accountsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="sidebar-link dropdown-toggle">
+                        <i class="fas fa-users"></i> Accounts
+                    </a>
+                    <ul class="collapse list-unstyled {% if 'accounts' in request.path or 'account' in request.path %}show{% endif %}" id="accountsSubmenu">
+                        <li>
+                            <a href="{{ url_for('accounts') }}" class="sidebar-link">
+                                <i class="fas fa-list"></i> View All Accounts
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('new_account') }}" class="sidebar-link">
+                                <i class="fas fa-user-plus"></i> Create New Account
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <li>
+                    <a href="#transactionsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="sidebar-link dropdown-toggle">
+                        <i class="fas fa-exchange-alt"></i> Transactions
+                    </a>
+                    <ul class="collapse list-unstyled {% if 'transaction' in request.path or 'deposit' in request.path or 'withdraw' in request.path or 'transfer' in request.path %}show{% endif %}" id="transactionsSubmenu">
+                        <li>
+                            <a href="{{ url_for('deposit') }}" class="sidebar-link">
+                                <i class="fas fa-arrow-circle-down"></i> Make Deposit
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('withdraw') }}" class="sidebar-link">
+                                <i class="fas fa-arrow-circle-up"></i> Make Withdrawal
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('transfer') }}" class="sidebar-link">
+                                <i class="fas fa-sync-alt"></i> Transfer Funds
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <li>
+                    <a href="#loansSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="sidebar-link dropdown-toggle">
+                        <i class="fas fa-money-bill-wave"></i> Loans
+                    </a>
+                    <ul class="collapse list-unstyled {% if 'loan' in request.path %}show{% endif %}" id="loansSubmenu">
+                        <li>
+                            <a href="{{ url_for('loans') }}" class="sidebar-link">
+                                <i class="fas fa-list-alt"></i> View All Loans
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('apply_for_loan') }}" class="sidebar-link">
+                                <i class="fas fa-file-signature"></i> Apply for Loan
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <li>
+                    <a href="#bugsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="sidebar-link dropdown-toggle">
+                        <i class="fas fa-bug"></i> Testing & Bugs
+                    </a>
+                    <ul class="collapse list-unstyled {% if 'bug' in request.path or 'report' in request.path %}show{% endif %}" id="bugsSubmenu">
+                        <li>
+                            <a href="{{ url_for('bugs') }}" class="sidebar-link">
+                                <i class="fas fa-clipboard-list"></i> View Bugs
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('report_bug') }}" class="sidebar-link">
+                                <i class="fas fa-exclamation-triangle"></i> Report Bug
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            {% else %}
+                <!-- Customer Navigation -->
+                <li class="{% if request.path == url_for('customer_dashboard') %}active{% endif %}">
+                    <a href="{{ url_for('customer_dashboard') }}" class="sidebar-link">
+                        <i class="fas fa-home"></i> My Dashboard
+                    </a>
+                </li>
+                
+                <li class="{% if request.path == url_for('view_account', account_id=session.get('account_id', 0)) %}active{% endif %}">
+                    <a href="{{ url_for('view_account', account_id=session.get('account_id', 0)) if session.get('account_id') else '#' }}" class="sidebar-link">
+                        <i class="fas fa-user"></i> My Account
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="#myTransactionsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="sidebar-link dropdown-toggle">
+                        <i class="fas fa-exchange-alt"></i> Transactions
+                    </a>
+                    <ul class="collapse list-unstyled {% if 'transaction' in request.path or 'deposit' in request.path or 'withdraw' in request.path or 'transfer' in request.path %}show{% endif %}" id="myTransactionsSubmenu">
+                        <li>
+                            <a href="{{ url_for('deposit') }}" class="sidebar-link">
+                                <i class="fas fa-arrow-circle-down"></i> Deposit Money
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('withdraw') }}" class="sidebar-link">
+                                <i class="fas fa-arrow-circle-up"></i> Withdraw Money
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('transfer') }}" class="sidebar-link">
+                                <i class="fas fa-sync-alt"></i> Transfer Money
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <li>
+                    <a href="#myLoansSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="sidebar-link dropdown-toggle">
+                        <i class="fas fa-money-bill-wave"></i> Loans
+                    </a>
+                    <ul class="collapse list-unstyled {% if 'loan' in request.path %}show{% endif %}" id="myLoansSubmenu">
+                        <li>
+                            <a href="{{ url_for('loans') }}" class="sidebar-link">
+                                <i class="fas fa-list-alt"></i> My Loans
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('apply_for_loan') }}" class="sidebar-link">
+                                <i class="fas fa-file-signature"></i> Apply for Loan
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <li class="{% if request.path == url_for('report_bug') %}active{% endif %}">
+                    <a href="{{ url_for('report_bug') }}" class="sidebar-link">
+                        <i class="fas fa-exclamation-triangle"></i> Report Issue
+                    </a>
+                </li>
+            {% endif %}
             
-            <li>
-                <a href="#accountsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="sidebar-link dropdown-toggle">
-                    <i class="fas fa-users"></i> Accounts
+            <!-- Logout for all users -->
+            {% if session.username %}
+            <li class="mt-3 pt-3" style="border-top: 1px solid var(--light-dark);">
+                <a href="{{ url_for('logout') }}" class="sidebar-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
-                <ul class="collapse list-unstyled {% if 'accounts' in request.path or 'account' in request.path %}show{% endif %}" id="accountsSubmenu">
-                    <li>
-                        <a href="{{ url_for('accounts') }}" class="sidebar-link">
-                            <i class="fas fa-list"></i> View All Accounts
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('new_account') }}" class="sidebar-link">
-                            <i class="fas fa-user-plus"></i> Create New Account
-                        </a>
-                    </li>
-                </ul>
             </li>
-            
-            <li>
-                <a href="#transactionsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="sidebar-link dropdown-toggle">
-                    <i class="fas fa-exchange-alt"></i> Transactions
-                </a>
-                <ul class="collapse list-unstyled {% if 'transaction' in request.path or 'deposit' in request.path or 'withdraw' in request.path or 'transfer' in request.path %}show{% endif %}" id="transactionsSubmenu">
-                    <li>
-                        <a href="{{ url_for('deposit') }}" class="sidebar-link">
-                            <i class="fas fa-arrow-circle-down"></i> Make Deposit
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('withdraw') }}" class="sidebar-link">
-                            <i class="fas fa-arrow-circle-up"></i> Make Withdrawal
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('transfer') }}" class="sidebar-link">
-                            <i class="fas fa-sync-alt"></i> Transfer Funds
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            
-            <li>
-                <a href="#loansSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="sidebar-link dropdown-toggle">
-                    <i class="fas fa-money-bill-wave"></i> Loans
-                </a>
-                <ul class="collapse list-unstyled {% if 'loan' in request.path %}show{% endif %}" id="loansSubmenu">
-                    <li>
-                        <a href="{{ url_for('loans') }}" class="sidebar-link">
-                            <i class="fas fa-list-alt"></i> View All Loans
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('apply_for_loan') }}" class="sidebar-link">
-                            <i class="fas fa-file-signature"></i> Apply for Loan
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            
-            <li>
-                <a href="#bugsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="sidebar-link dropdown-toggle">
-                    <i class="fas fa-bug"></i> Testing & Bugs
-                </a>
-                <ul class="collapse list-unstyled {% if 'bug' in request.path or 'report' in request.path %}show{% endif %}" id="bugsSubmenu">
-                    <li>
-                        <a href="{{ url_for('bugs') }}" class="sidebar-link">
-                            <i class="fas fa-clipboard-list"></i> View Bugs
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('report_bug') }}" class="sidebar-link">
-                            <i class="fas fa-exclamation-triangle"></i> Report Bug
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('generate_report') }}" class="sidebar-link">
-                            <i class="fas fa-chart-bar"></i> Generate Reports
-                        </a>
-                    </li>
-                </ul>
-            </li>
+            {% endif %}
         </ul>
     </nav>
 

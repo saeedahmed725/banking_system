@@ -5,9 +5,11 @@ from pathlib import Path
 
 # Add the project root to the Python path
 sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 
 from src.account import AccountManager
 from src.transaction import TransactionManager
+from test_config import DatabaseHelper, setup_test_database, cleanup_test_database
 
 
 class TestTransactionManager(unittest.TestCase):
@@ -15,9 +17,12 @@ class TestTransactionManager(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment before each test"""
-        # Create account and transaction managers
-        self.account_manager = AccountManager()
-        self.transaction_manager = TransactionManager()
+        # Create test database
+        self.test_db = setup_test_database()
+          # Create account and transaction managers with test database
+        self.account_manager = AccountManager(self.test_db)
+        
+        self.transaction_manager = TransactionManager(self.test_db)
         
         # Create test accounts
         self.account1 = self.account_manager.create_account(
@@ -31,15 +36,24 @@ class TestTransactionManager(unittest.TestCase):
             owner_name='Test User 2',
             account_type='savings',
             email='test2@example.com',
-            initial_balance=500.0
-        )
+            initial_balance=500.0        )
     
     def tearDown(self):
         """Clean up after each test"""
-        # Delete all accounts created during tests
-        accounts = self.account_manager.get_all_accounts()
-        for account in accounts:
-            self.account_manager.delete_account(account['account_id'])
+        # Clean up test data with proper balance handling
+        try:
+            accounts = self.account_manager.get_all_accounts()
+            for account in accounts:
+                # Set balance to zero for cleanup
+                self.account_manager.update_balance(account['account_id'], 0.0)
+                # Now delete the account
+                self.account_manager.delete_account(account['account_id'])
+        except Exception:
+            pass  # Ignore cleanup errors
+        
+        # Clean up test database
+        self.test_db.cleanup_test_db()
+        cleanup_test_database()
     
     def test_deposit(self):
         """Test deposit functionality"""

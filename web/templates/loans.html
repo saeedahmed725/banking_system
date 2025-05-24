@@ -70,9 +70,8 @@
                                             {% else %}
                                                 <span class="text-muted">N/A</span>
                                             {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if loan.status == 'pending' %}
+                                        </td>                                        <td>
+                                            {% if loan.status == 'pending' and user.user_type == 'admin' %}
                                                 <div class="btn-group" role="group">
                                                     <form action="{{ url_for('approve_loan', loan_id=loan.loan_id) }}" method="post" class="me-1">
                                                         <button type="submit" class="btn btn-sm btn-success">
@@ -85,6 +84,10 @@
                                                         </button>
                                                     </form>
                                                 </div>
+                                            {% elif loan.status == 'pending' %}
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="fas fa-hourglass-half me-1"></i> Awaiting Approval
+                                                </span>
                                             {% elif loan.status == 'active' %}
                                                 <a href="{{ url_for('make_payment', loan_id=loan.loan_id) }}" class="btn btn-sm btn-primary">
                                                     <i class="fas fa-credit-card me-1"></i> Make Payment

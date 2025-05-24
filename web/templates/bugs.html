@@ -8,7 +8,6 @@
         <h2>Bug Tracking</h2>
         <div class="d-flex justify-content-between mb-3">
             <a href="{{ url_for('report_bug') }}" class="btn btn-warning">Report New Bug</a>
-            <a href="{{ url_for('generate_report') }}" class="btn btn-secondary">Generate Bug Report</a>
         </div>
         
         {% if bugs %}
@@ -55,7 +54,7 @@
                                         <span class="badge bg-danger">Reopened</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ bug.reported_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ bug.reported_date}}</td>
                                 <td>
                                     <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#bugDetailModal{{ bug.id }}">
                                         View Details
@@ -64,105 +63,81 @@
                             </tr>
                             
                             <!-- Bug Detail Modal -->
-                            <div class="modal fade" id="bugDetailModal{{ bug.id }}" tabindex="-1" aria-labelledby="bugDetailModalLabel{{ bug.id }}" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="bugDetailModalLabel{{ bug.id }}">Bug Details: BUG-{{ bug.id }}</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="row mb-3">
-                                                <div class="col-md-6">
-                                                    <dl class="row">
-                                                        <dt class="col-sm-4">Title:</dt>
-                                                        <dd class="col-sm-8">{{ bug.title }}</dd>
-                                                        
-                                                        <dt class="col-sm-4">Severity:</dt>
-                                                        <dd class="col-sm-8">{{ bug.severity|title }}</dd>
-                                                        
-                                                        <dt class="col-sm-4">Module:</dt>
-                                                        <dd class="col-sm-8">{{ bug.module or 'N/A' }}</dd>
-                                                        
-                                                        <dt class="col-sm-4">Status:</dt>
-                                                        <dd class="col-sm-8">{{ bug.status|title|replace('_', ' ') }}</dd>
-                                                    </dl>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <dl class="row">
-                                                        <dt class="col-sm-4">Reported:</dt>
-                                                        <dd class="col-sm-8">{{ bug.reported_date }}</dd>
-                                                        
-                                                        <dt class="col-sm-4">Updated:</dt>
-                                                        <dd class="col-sm-8">{{ bug.last_updated }}</dd>
-                                                        
-                                                        {% if bug.fixed_date %}
-                                                            <dt class="col-sm-4">Fixed:</dt>
-                                                            <dd class="col-sm-8">{{ bug.fixed_date }}</dd>
-                                                        {% endif %}
-                                                        
-                                                        {% if bug.closed_date %}
-                                                            <dt class="col-sm-4">Closed:</dt>
-                                                            <dd class="col-sm-8">{{ bug.closed_date }}</dd>
-                                                        {% endif %}
-                                                    </dl>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="card mb-3">
-                                                <div class="card-header">
-                                                    <h6 class="card-title mb-0">Description</h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <p>{{ bug.description }}</p>
-                                                </div>
-                                            </div>
-                                            
-                                            {% if bug.steps_to_reproduce %}
-                                                <div class="card mb-3">
-                                                    <div class="card-header">
-                                                        <h6 class="card-title mb-0">Steps to Reproduce</h6>
-                                                    </div>
-                                                    <div class="card-body">
-                                                        <p>{{ bug.steps_to_reproduce }}</p>
-                                                    </div>
-                                                </div>
-                                            {% endif %}
-                                            
-                                            <div class="card">
-                                                <div class="card-header">
-                                                    <h6 class="card-title mb-0">Update Status</h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <form method="post" action="#" id="updateStatusForm{{ bug.id }}">
-                                                        <input type="hidden" name="bug_id" value="{{ bug.id }}">
-                                                        <div class="mb-3">
-                                                            <label for="new_status{{ bug.id }}" class="form-label">Change Status</label>
-                                                            <select class="form-select" id="new_status{{ bug.id }}" name="new_status">
-                                                                <option value="open" {% if bug.status == 'open' %}selected{% endif %}>Open</option>
-                                                                <option value="in_progress" {% if bug.status == 'in_progress' %}selected{% endif %}>In Progress</option>
-                                                                <option value="fixed" {% if bug.status == 'fixed' %}selected{% endif %}>Fixed</option>
-                                                                <option value="closed" {% if bug.status == 'closed' %}selected{% endif %}>Closed</option>
-                                                                <option value="reopened" {% if bug.status == 'reopened' %}selected{% endif %}>Reopened</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="comments{{ bug.id }}" class="form-label">Comments</label>
-                                                            <textarea class="form-control" id="comments{{ bug.id }}" name="comments" rows="2"></textarea>
-                                                        </div>
-                                                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                                            <button type="submit" class="btn btn-primary">Update Status</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+<div class="modal fade" id="bugDetailModal{{ bug.id }}" tabindex="-1" aria-labelledby="bugDetailModalLabel{{ bug.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background-color: #000000; color: #ffffff;">
+            <div class="modal-header" style="background-color: #333333; color: white;">
+                <h5 class="modal-title" id="bugDetailModalLabel{{ bug.id }}">Bug Details: BUG-{{ bug.id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Title:</dt>
+                            <dd class="col-sm-8">{{ bug.title }}</dd>
+                            
+                            <dt class="col-sm-4">Severity:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-danger">{{ bug.severity|title }}</span>
+                            </dd>
+                            
+                            <dt class="col-sm-4">Module:</dt>
+                            <dd class="col-sm-8">{{ bug.module or 'N/A' }}</dd>
+                            
+                            <dt class="col-sm-4">Status:</dt>
+                            <dd class="col-sm-8">{{ bug.status|title|replace('_', ' ') }}</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Reported:</dt>
+                            <dd class="col-sm-8">{{ bug.reported_date }}</dd>
+                            
+                            {% if bug.fixed_date %}
+                                <dt class="col-sm-4">Fixed:</dt>
+                                <dd class="col-sm-8">{{ bug.fixed_date }}</dd>
+                            {% endif %}
+                            
+                            {% if bug.closed_date %}
+                                <dt class="col-sm-4">Closed:</dt>
+                                <dd class="col-sm-8">{{ bug.closed_date }}</dd>
+                            {% endif %}
+                        </dl>
+                    </div>
+                </div>
+                
+                <div class="card mb-3" style="background-color: #333333;">
+                    <div class="card-header" style="background-color: #444444; color: white;">
+                        <h6 class="card-title mb-0">Description</h6>
+                    </div>
+                    <div class="card-body" style="color: white;">
+                        <p>{{ bug.description }}</p>
+                    </div>
+                </div>
+                
+                <!-- Always show the Steps to Reproduce section -->
+                <div class="card mb-3" style="background-color: #333333;">
+                    <div class="card-header" style="background-color: #444444; color: white;">
+                        <h6 class="card-title mb-0">Steps to Reproduce</h6>
+                    </div>
+                    <div class="card-body" style="color: white;">
+                        {% if bug.steps_to_reproduce %}
+                            <p>{{ bug.steps_to_reproduce }}</p>
+                        {% else %}
+                            <p>No steps provided.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer" style="background-color: #333333;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
                         {% endfor %}
                     </tbody>
                 </table>

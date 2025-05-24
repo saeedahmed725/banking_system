@@ -6,7 +6,7 @@ class AccountManager:
     
     def __init__(self, db=None):
         """Initialize with a database connection"""
-        self.db = db if db else Database()
+        self.db = db if db is not None else Database()
     
     def create_account(self, owner_name, account_type, email=None, phone_number=None, initial_balance=0.0):
         """Create a new bank account"""
@@ -189,7 +189,7 @@ class AccountManager:
         result = self.db.execute_query(query, (account_id,), 'one')
         
         if result and result['count'] > 0:
-            raise ValueError("Cannot close account with active loans")
+            raise ValueError("Cannot close account with active or pending loans")
         
         # Delete account (cascade will delete related transactions)
         query = "DELETE FROM accounts WHERE account_id = ?"
@@ -236,3 +236,12 @@ class AccountManager:
             'recent_transactions': [dict(t) for t in recent_transactions] if recent_transactions else [],
             'loan_summary': dict(loan_summary) if loan_summary else {'count': 0, 'total_remaining': 0}
         }
+    
+    def delete_account(self, account_id):
+        """Delete an account after validation"""
+        try:
+            # Use close_account to handle validation and deletion
+            result = self.close_account(account_id)
+            return result
+        except Exception as e:
+            raise Exception(f"Error deleting account: {str(e)}")

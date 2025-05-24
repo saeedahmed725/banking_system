@@ -109,6 +109,10 @@ class BugTracker:
             self.logger.error(f"Error reporting bug: {e}")
             raise Exception(f"Error reporting bug: {e}")
     
+    def log_bug(self, *args, **kwargs):
+        """Alias for report_bug"""
+        return self.report_bug(*args, **kwargs)
+    
     def get_bug(self, bug_id):
         """Get bug by ID"""
         query = "SELECT * FROM bugs WHERE id = ?"
@@ -214,6 +218,10 @@ class BugTracker:
         if 'status' in kwargs:
             query += " AND status = ?"
             params.append(kwargs['status'])
+
+        if 'status_not' in kwargs:
+            query += " AND status != ?"
+            params.append(kwargs['status_not'])
         
         if 'reported_after' in kwargs:
             query += " AND reported_date >= ?"

@@ -17,10 +17,10 @@ class Database:
         
         # Create directory if it doesn't exist
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Initialize database
+          # Initialize database
         self.conn = None
         self.initialize_database()
+        self.migrate_database()
     
     def connect(self):
         """Connect to the database"""
@@ -57,8 +57,7 @@ class Database:
                     updated_at TIMESTAMP NOT NULL
                 )
             ''')
-            
-            # Create transactions table
+              # Create transactions table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS transactions (
                     transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -68,12 +67,13 @@ class Database:
                     description TEXT,
                     transaction_date TIMESTAMP NOT NULL,
                     related_transaction_id INTEGER,
+                    related_account_id INTEGER,
                     FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE,
-                    FOREIGN KEY (related_transaction_id) REFERENCES transactions(transaction_id)
+                    FOREIGN KEY (related_transaction_id) REFERENCES transactions(transaction_id),
+                    FOREIGN KEY (related_account_id) REFERENCES accounts(account_id)
                 )
             ''')
-            
-            # Create loans table
+              # Create loans table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS loans (
                     loan_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -88,6 +88,22 @@ class Database:
                     end_date TIMESTAMP,
                     last_payment_date TIMESTAMP,
                     FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE
+                )
+            ''')
+              # Create users table
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    full_name TEXT NOT NULL,
+                    user_type TEXT NOT NULL DEFAULT 'customer',
+                    is_active BOOLEAN DEFAULT 1,
+                    created_at TIMESTAMP NOT NULL,
+                    last_login TIMESTAMP,
+                    account_id INTEGER,
+                    FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE SET NULL
                 )
             ''')
             
@@ -235,3 +251,30 @@ class Database:
                 self.conn.rollback()
             finally:
                 self.close()
+    
+    def migrate_database(self):
+        """Migrate database schema to handle any missing columns"""
+        try:
+            conn = self.connect()
+            cursor = conn.cursor()
+            
+            # Check if related_account_id column exists in transactions table
+            cursor.execute("PRAGMA table_info(transactions)")
+            columns = [column[1] for column in cursor.fetchall()]
+            
+            if 'related_account_id' not in columns:
+                # Add the missing column
+                cursor.execute("ALTER TABLE transactions ADD COLUMN related_account_id INTEGER")
+                cursor.execute("ALTER TABLE transactions ADD CONSTRAINT fk_related_account FOREIGN KEY (related_account_id) REFERENCES accounts(account_id)")
+                conn.commit()
+                print("Database migrated: added related_account_id column to transactions table")
+            
+            return True
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            # Ignore errors if column already exists or other non-critical issues
+            print(f"Migration note: {e}")
+            return True
+        finally:
+            self.close()

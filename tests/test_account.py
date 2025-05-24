@@ -6,8 +6,10 @@ from pathlib import Path
 
 # Add the project root to the Python path
 sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 
 from src.account import AccountManager
+from test_config import DatabaseHelper, setup_test_database, cleanup_test_database
 
 
 class TestAccountManager(unittest.TestCase):
@@ -15,8 +17,10 @@ class TestAccountManager(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment before each test"""
-        # Create a test database
+        # Create a test database and account manager
+        self.test_db = setup_test_database()
         self.account_manager = AccountManager()
+        self.account_manager.db = self.test_db  # Use test database
         
         # Sample account data for testing
         self.test_account_data = {
@@ -29,10 +33,19 @@ class TestAccountManager(unittest.TestCase):
     
     def tearDown(self):
         """Clean up after each test"""
-        # Delete all accounts created during tests
-        accounts = self.account_manager.get_all_accounts()
-        for account in accounts:
-            self.account_manager.delete_account(account['account_id'])
+        # Clean up test data with proper balance handling
+        try:
+            accounts = self.account_manager.get_all_accounts()
+            for account in accounts:
+                # Set balance to zero for cleanup
+                self.account_manager.update_balance(account['account_id'], 0.0)
+                # Now delete the account
+                self.account_manager.delete_account(account['account_id'])
+        except Exception:
+            pass  # Ignore cleanup errors
+          # Clean up test database
+        self.test_db.cleanup_test_db()
+        cleanup_test_database()
     
     def test_create_account(self):
         """Test account creation functionality"""
@@ -89,8 +102,7 @@ class TestAccountManager(unittest.TestCase):
         # Verify updates
         self.assertEqual(updated_account['owner_name'], updated_data['owner_name'])
         self.assertEqual(updated_account['email'], updated_data['email'])
-        
-        # Verify unchanged fields remain the same
+          # Verify unchanged fields remain the same
         self.assertEqual(updated_account['account_type'], account['account_type'])
         self.assertEqual(updated_account['phone_number'], account['phone_number'])
     
@@ -101,6 +113,9 @@ class TestAccountManager(unittest.TestCase):
         
         # Get the account ID
         account_id = account['account_id']
+        
+        # Set balance to zero (business requirement for account deletion)
+        self.account_manager.update_balance(account_id, 0.0)
         
         # Delete the account
         result = self.account_manager.delete_account(account_id)

@@ -5,10 +5,12 @@ from pathlib import Path
 
 # Add the project root to the Python path
 sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 
 from src.account import AccountManager
 from src.transaction import TransactionManager
 from src.loan import LoanManager
+from test_config import DatabaseHelper, setup_test_database, cleanup_test_database
 
 
 class TestLoanManager(unittest.TestCase):
@@ -16,10 +18,14 @@ class TestLoanManager(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment before each test"""
-        # Create managers
-        self.account_manager = AccountManager()
-        self.transaction_manager = TransactionManager()
-        self.loan_manager = LoanManager()
+        # Create test database
+        self.test_db = setup_test_database()
+          # Create managers with test database
+        self.account_manager = AccountManager(self.test_db)
+        
+        self.transaction_manager = TransactionManager(self.test_db)
+        
+        self.loan_manager = LoanManager(self.test_db)
         
         # Create test account
         self.account = self.account_manager.create_account(
@@ -28,8 +34,7 @@ class TestLoanManager(unittest.TestCase):
             email='test@example.com',
             initial_balance=2000.0
         )
-        
-        # Sample loan data
+          # Sample loan data
         self.loan_data = {
             'account_id': self.account['account_id'],
             'loan_amount': 5000.0,
@@ -39,10 +44,19 @@ class TestLoanManager(unittest.TestCase):
     
     def tearDown(self):
         """Clean up after each test"""
-        # Delete all accounts created during tests (cascade deletes loans and transactions)
-        accounts = self.account_manager.get_all_accounts()
-        for account in accounts:
-            self.account_manager.delete_account(account['account_id'])
+        # Clean up test data with proper balance handling
+        try:
+            accounts = self.account_manager.get_all_accounts()
+            for account in accounts:
+                # Set balance to zero for cleanup
+                self.account_manager.update_balance(account['account_id'], 0.0)
+                # Now delete the account
+                self.account_manager.delete_account(account['account_id'])
+        except Exception:
+            pass  # Ignore cleanup errors
+          # Clean up test database
+        self.test_db.cleanup_test_db()
+        cleanup_test_database()
     
     def test_apply_for_loan(self):
         """Test loan application functionality"""
@@ -157,7 +171,7 @@ class TestLoanManager(unittest.TestCase):
             # (loan_amount, interest_rate, term_months, expected_payment)
             (10000, 5, 12, 856.07),  # 5% annual interest, 1 year
             (10000, 0, 12, 833.33),  # 0% interest (edge case)
-            (50000, 3.5, 60, 911.39)  # 3.5% annual interest, 5 years
+            (50000, 3.5, 60, 909.59)  # 3.5% annual interest, 5 years
         ]
         
         for loan_amount, interest_rate, term_months, expected_payment in test_cases:

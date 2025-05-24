@@ -127,11 +127,10 @@ class LoanManager:
         
         # Disburse loan amount to account
         transaction_manager = TransactionManager(self.db)
-        
-        # Record loan disbursement transaction
+          # Record loan disbursement transaction
         transaction = transaction_manager.record_transaction(
             account_id=loan['account_id'],
-            transaction_type='loan_disbursement',
+            transaction_type='deposit',
             amount=loan['loan_amount'],
             description=f"Loan disbursement for loan #{loan_id}"
         )
@@ -139,15 +138,10 @@ class LoanManager:
         # Update account balance
         new_balance = account['balance'] + loan['loan_amount']
         account_manager.update_balance(loan['account_id'], new_balance)
-        
-        # Return updated loan
+          # Return updated loan
         updated_loan = self.get_loan(loan_id)
         
-        return {
-            'loan': updated_loan,
-            'transaction': transaction,
-            'account': account_manager.get_account(loan['account_id'])
-        }
+        return updated_loan
     
     def reject_loan(self, loan_id):
         """Reject a loan application"""
@@ -193,14 +187,12 @@ class LoanManager:
             raise ValueError("Insufficient funds in account for loan payment")
         
         # Withdraw from account
-        transaction_manager = TransactionManager(self.db)
-        
-        # Record loan payment transaction
+        transaction_manager = TransactionManager(self.db)        # Record loan payment transaction
         transaction = transaction_manager.record_transaction(
             account_id=loan['account_id'],
-            transaction_type='loan_payment',
+            transaction_type='withdrawal',
             amount=payment_amount,
-            description=f"Payment for loan #{loan_id}"
+            description=f"Loan payment for loan #{loan_id}"
         )
         
         # Update account balance
@@ -227,16 +219,10 @@ class LoanManager:
                 WHERE loan_id = ?
             """
             self.db.execute_query(query, (new_remaining, current_time, loan_id))
-        
-        # Return updated loan
+          # Return updated loan
         updated_loan = self.get_loan(loan_id)
         
-        return {
-            'loan': updated_loan,
-            'transaction': transaction,
-            'account': account_manager.get_account(loan['account_id']),
-            'payment_amount': payment_amount
-        }
+        return updated_loan
     
     def calculate_monthly_payment(self, loan_amount, interest_rate, term_months):
         """Calculate the monthly payment for a loan"""

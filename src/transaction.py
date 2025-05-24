@@ -39,8 +39,9 @@ class TransactionManager:
         return {
             "transaction_id": transaction_id,
             "account_id": account_id,
-            "type": "deposit",
+            "transaction_type": "deposit",
             "amount": amount,
+            "description": description or "Deposit",
             "new_balance": new_balance,
             "timestamp": self.db.get_current_timestamp()
         }
@@ -78,8 +79,9 @@ class TransactionManager:
         return {
             "transaction_id": transaction_id,
             "account_id": account_id,
-            "type": "withdrawal",
+            "transaction_type": "withdrawal",
             "amount": amount,
+            "description": description or "Withdrawal",
             "new_balance": new_balance,
             "timestamp": self.db.get_current_timestamp()
         }
@@ -142,8 +144,8 @@ class TransactionManager:
             return {
                 "outgoing_transaction_id": outgoing_id,
                 "incoming_transaction_id": incoming_id,
-                "from_account_id": from_account_id,
-                "to_account_id": to_account_id,
+                "from_account": from_account_id,
+                "to_account": to_account_id,
                 "amount": amount,
                 "from_new_balance": new_from_balance,
                 "to_new_balance": new_to_balance,

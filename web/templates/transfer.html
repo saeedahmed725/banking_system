@@ -32,18 +32,24 @@
                     <div class="text-center my-3" style="animation: fadeIn 0.8s;">
                         <i class="fas fa-arrow-down fa-2x text-info"></i>
                     </div>
-                    
-                    <div class="mb-4">
+                      <div class="mb-4">
                         <label for="to_account_id" class="form-label text-primary">
                             <i class="fas fa-arrow-circle-left me-1"></i> To Account
-                        </label>
-                        <select class="form-select form-select-lg mb-3" id="to_account_id" name="to_account_id" required>
+                        </label>                        <select class="form-select form-select-lg mb-3" id="to_account_id" name="to_account_id" required>
                             <option value="">Choose destination account</option>
-                            {% for account in accounts %}
-                                <option value="{{ account.account_id }}" {% if request.args.get('to_account_id')|int == account.account_id %}selected{% endif %}>
-                                    {{ account.account_number }} - {{ account.owner_name }} ({{ account.account_type }})
-                                </option>
-                            {% endfor %}
+                            {% if destination_accounts %}
+                                {% for account in destination_accounts %}
+                                    <option value="{{ account.account_id }}" {% if request.args.get('to_account_id')|int == account.account_id %}selected{% endif %}>
+                                        {{ account.account_number }} - {{ account.owner_name }} ({{ account.account_type }})
+                                    </option>
+                                {% endfor %}
+                            {% else %}
+                                {% for account in accounts %}
+                                    <option value="{{ account.account_id }}" {% if request.args.get('to_account_id')|int == account.account_id %}selected{% endif %}>
+                                        {{ account.account_number }} - {{ account.owner_name }} ({{ account.account_type }})
+                                    </option>
+                                {% endfor %}
+                            {% endif %}
                         </select>
                         <div id="same-account-warning" class="form-text text-danger mt-2" style="display: none;">
                             <i class="fas fa-exclamation-triangle me-1"></i> Source and destination accounts cannot be the same
@@ -93,7 +99,6 @@
                     <li class="mb-2">Transfers between accounts are processed immediately.</li>
                     <li class="mb-2">You cannot transfer more than your available balance.</li>
                     <li class="mb-2">Both accounts will show this transaction in their history.</li>
-                    <li>For transfers over $10,000, additional verification may be required.</li>
                 </ul>
             </div>
         </div>
